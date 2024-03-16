@@ -1,0 +1,47 @@
+Bootstrap: docker
+From: nvidia/cuda:10.1-cudnn7-runtime-ubuntu16.04
+Stage: spython-base
+
+%files
+fairseq.tar /root/
+%post
+apt-get update && apt-get install -y \
+apt-transport-https \
+bash \
+build-essential \
+ca-certificates \
+cmake \
+curl \
+git \
+iputils-ping \
+libhdf5-dev \
+software-properties-common \
+swig \
+unzip \
+vim \
+wget && \
+rm -rf /var/lib/apt/lists
+
+# Install Python3 from miniconda.
+curl -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+chmod +x ~/miniconda.sh && \
+~/miniconda.sh -b -p /opt/conda && \
+rm ~/miniconda.sh
+PATH=/opt/conda/bin:$PATH
+conda install python=3.7.7
+conda --version
+
+python3 -m pip install --no-cache-dir --upgrade pip && \
+python3 -m pip install --no-cache-dir torch==1.4.0 torchvision==0.5.0 && \
+python3 -m pip install --no-cache-dir \
+tqdm==4.53.0 \
+numpy==1.20.1 \
+editdistance
+
+cd /root/fairseq && python3 -m pip install --no-cache-dir .
+%environment
+export PATH=/opt/conda/bin:$PATH
+%runscript
+exec /bin/bash "$@"
+%startscript
+exec /bin/bash "$@"
