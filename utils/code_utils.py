@@ -80,6 +80,9 @@ def code_toks_to_code_string(code_toks_joined, anonymize_dict=None):
 def get_diff_metric(src, pred):
     src_toks  = src.split()
     pred_toks = pred.split()
+    print(f'src_toks: {src_toks}')
+    print(f'pred_toks: {pred_toks}')
+    print(f'editdistance.eval(src_toks, pred_toks): {editdistance.eval(src_toks, pred_toks)}')
     diff_metric = editdistance.eval(src_toks, pred_toks)
     return diff_metric
 

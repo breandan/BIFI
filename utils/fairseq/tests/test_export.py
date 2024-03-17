@@ -9,16 +9,16 @@ import tempfile
 import unittest
 
 import torch
+
 from fairseq.data.dictionary import Dictionary
 from fairseq.models.transformer import TransformerModel
 from fairseq.modules import multihead_attention, sinusoidal_positional_embedding
-from fairseq.tasks.fairseq_task import FairseqTask
-
+from fairseq.tasks.fairseq_task import LegacyFairseqTask
 
 DEFAULT_TEST_VOCAB_SIZE = 100
 
 
-class DummyTask(FairseqTask):
+class DummyTask(LegacyFairseqTask):
     def __init__(self, args):
         super().__init__(args)
         self.dictionary = get_dummy_dictionary()
@@ -58,16 +58,17 @@ def get_dummy_task_and_parser():
     return task, parser
 
 
-class TestExportModels(unittest.TestCase):
-    def _test_save_and_load(self, scripted_module):
-        with tempfile.NamedTemporaryFile() as f:
-            scripted_module.save(f.name)
-            torch.jit.load(f.name)
+def _test_save_and_load(scripted_module):
+    with tempfile.NamedTemporaryFile() as f:
+        scripted_module.save(f.name)
+        torch.jit.load(f.name)
 
+
+class TestExportModels(unittest.TestCase):
     def test_export_multihead_attention(self):
         module = multihead_attention.MultiheadAttention(embed_dim=8, num_heads=2)
         scripted = torch.jit.script(module)
-        self._test_save_and_load(scripted)
+        _test_save_and_load(scripted)
 
     def test_incremental_state_multihead_attention(self):
         module1 = multihead_attention.MultiheadAttention(embed_dim=8, num_heads=2)
@@ -89,10 +90,10 @@ class TestExportModels(unittest.TestCase):
             embedding_dim=8, padding_idx=1
         )
         scripted = torch.jit.script(module)
-        self._test_save_and_load(scripted)
+        _test_save_and_load(scripted)
 
     @unittest.skipIf(
-        torch.__version__ < "1.5.0", "Targeting OSS scriptability for the 1.5 release"
+        torch.__version__ < "1.6.0", "Targeting OSS scriptability for the 1.6 release"
     )
     def test_export_transformer(self):
         task, parser = get_dummy_task_and_parser()
@@ -100,7 +101,19 @@ class TestExportModels(unittest.TestCase):
         args = parser.parse_args([])
         model = TransformerModel.build_model(args, task)
         scripted = torch.jit.script(model)
-        self._test_save_and_load(scripted)
+        _test_save_and_load(scripted)
+
+    @unittest.skipIf(
+        torch.__version__ < "1.6.0", "Targeting OSS scriptability for the 1.6 release"
+    )
+    def test_export_transformer_no_token_pos_emb(self):
+        task, parser = get_dummy_task_and_parser()
+        TransformerModel.add_args(parser)
+        args = parser.parse_args([])
+        args.no_token_positional_embeddings = True
+        model = TransformerModel.build_model(args, task)
+        scripted = torch.jit.script(model)
+        _test_save_and_load(scripted)
 
 
 if __name__ == "__main__":

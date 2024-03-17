@@ -117,3 +117,11 @@ python src/c003__run_fixer.py   --round_name round1-BIFI-part2 --gpu_ids '0,1,2,
 python src/c005__eval_fixer.py  --round_name round1-BIFI-part2
 ```
 This is repeated similarly for round 2.
+
+# Evaluation Command
+
+```bash
+fairseq-interactive data/round2-BIFI-part2/orig_bad/fairseq_preprocess__orig_bad.0 \
+  --path data/round2-BIFI-part2/model-fixer/checkpoint.pt \
+  --beam 10
+```

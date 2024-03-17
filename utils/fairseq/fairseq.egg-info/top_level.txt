@@ -1,4 +1,3 @@
-examples
+alignment_train_cpu_binding
 fairseq
 fairseq_cli
-tests
