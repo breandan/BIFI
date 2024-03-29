@@ -9,7 +9,7 @@ app = Flask(__name__)
 breaker = TransformerModel.from_pretrained(
   'data/round2-BIFI-part1/model-breaker/',
   checkpoint_file='checkpoint.pt',
-  data_name_or_path='data/round2-BIFI-part2/orig_bad/fairseq_preprocess__orig_good.9',
+  data_name_or_path='data/round2-BIFI-part1/orig_good/fairseq_preprocess__orig_good.9',
 )
 
 fixer = TransformerModel.from_pretrained(
