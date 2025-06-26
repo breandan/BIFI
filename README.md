@@ -24,13 +24,16 @@ This repo provides the source code & data of our paper: [Break-It-Fix-It: Unsupe
 
 Run the following commands to create a conda environment (assuming CUDA10.1):
 ```bash
-conda create -n BIFI python=3.7.7
+conda create -n BIFI python=3.11
 conda activate BIFI
 pip install tqdm
-pip install torch==1.4.0 torchvision==0.5.0
-cd utils/fairseq
+pip install torch==2.2.0 torchvision
+rm -rf utils/fairseq
+cd utils
+git clone https://github.com/VarunGumma/fairseq.git
+cd fairseq
 pip install -e .
-pip install numpy==1.20.1 editdistance
+pip install numpy editdistance
 ```
 Alternatively, you can use the Dockerfile in the `docker` folder of this repo to set up the environment.
 
